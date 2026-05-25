@@ -1,0 +1,86 @@
+{% extends "portfolio/base.html" %}
+{% load static %}
+
+{% block title %}About — {% if profile %}{{ profile.name }}{% else %}Portfolio{% endif %}{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     ABOUT PAGE
+============================================================ -->
+<section class="page-hero">
+  <div class="page-hero__inner">
+    <span class="page-hero__tag">Get to know me</span>
+    <h1 class="page-hero__title">About Me</h1>
+  </div>
+</section>
+
+<section class="about">
+  <div class="about__inner">
+
+    <!-- Profile image column -->
+    <div class="about__image-col">
+      {% if profile and profile.profile_image %}
+        <img
+          src="{{ profile.profile_image.url }}"
+          alt="Photo of {{ profile.name }}"
+          class="about__image"
+        />
+      {% else %}
+        <div class="about__image-placeholder">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="50" cy="38" r="22" fill="var(--teal-400)" opacity=".8"/>
+            <ellipse cx="50" cy="90" rx="35" ry="22" fill="var(--teal-400)" opacity=".5"/>
+          </svg>
+        </div>
+      {% endif %}
+
+      <!-- Social links below the image -->
+      {% if profile %}
+      <div class="about__socials">
+        {% if profile.github_url %}
+          <a href="{{ profile.github_url }}" target="_blank" rel="noopener" class="about__social-btn">
+            ↗ GitHub
+          </a>
+        {% endif %}
+        {% if profile.linkedin_url %}
+          <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" class="about__social-btn">
+            ↗ LinkedIn
+          </a>
+        {% endif %}
+        {% if profile.email %}
+          <a href="mailto:{{ profile.email }}" class="about__social-btn">
+            ✉ Email Me
+          </a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Bio / text column -->
+    <div class="about__text-col">
+      <h2 class="about__name">
+        {% if profile %}{{ profile.name }}{% else %}Your Name{% endif %}
+      </h2>
+      <p class="about__title-badge">
+        {% if profile %}{{ profile.title }}{% else %}Developer{% endif %}
+      </p>
+
+      <div class="about__bio">
+        {% if profile %}
+          {# linebreaksbr turns newlines into <br> tags for multi-paragraph bios #}
+          {{ profile.bio|linebreaksbr }}
+        {% else %}
+          <p>No bio added yet. Add your profile in the Django admin panel.</p>
+        {% endif %}
+      </div>
+
+      <a href="{% url 'portfolio:projects' %}" class="btn btn--primary" style="margin-top:2rem;">
+        See My Projects →
+      </a>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

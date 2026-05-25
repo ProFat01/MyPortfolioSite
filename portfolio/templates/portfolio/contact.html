@@ -1,0 +1,85 @@
+{% extends "portfolio/base.html" %}
+{% load static %}
+
+{% block title %}Contact — {% if profile %}{{ profile.name }}{% else %}Portfolio{% endif %}{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     CONTACT PAGE
+============================================================ -->
+<section class="page-hero">
+  <div class="page-hero__inner">
+    <span class="page-hero__tag">Let's talk</span>
+    <h1 class="page-hero__title">Contact</h1>
+  </div>
+</section>
+
+<section class="contact-section">
+  <div class="contact-section__inner">
+
+    <!-- Left: Intro copy -->
+    <div class="contact-info">
+      <h2 class="contact-info__heading">Get In Touch</h2>
+      <p class="contact-info__text">
+        I'm always open to discussing new projects, creative ideas,
+        or opportunities to be part of your vision.
+        Feel free to reach out through any of the channels below.
+      </p>
+
+      <!-- Contact cards -->
+      <div class="contact-cards">
+
+        {% if profile and profile.email %}
+        <a href="mailto:{{ profile.email }}" class="contact-card">
+          <div class="contact-card__icon">✉</div>
+          <div class="contact-card__info">
+            <span class="contact-card__label">Email</span>
+            <span class="contact-card__value">{{ profile.email }}</span>
+          </div>
+        </a>
+        {% endif %}
+
+        {% if profile and profile.github_url %}
+        <a href="{{ profile.github_url }}" target="_blank" rel="noopener" class="contact-card">
+          <div class="contact-card__icon">&#60;/&#62;</div>
+          <div class="contact-card__info">
+            <span class="contact-card__label">GitHub</span>
+            <span class="contact-card__value">View my repositories ↗</span>
+          </div>
+        </a>
+        {% endif %}
+
+        {% if profile and profile.linkedin_url %}
+        <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" class="contact-card">
+          <div class="contact-card__icon">in</div>
+          <div class="contact-card__info">
+            <span class="contact-card__label">LinkedIn</span>
+            <span class="contact-card__value">Connect with me ↗</span>
+          </div>
+        </a>
+        {% endif %}
+
+        {% if not profile %}
+        <p style="color:var(--text-muted);">
+          No contact info added yet. Edit your Profile in the admin panel.
+        </p>
+        {% endif %}
+
+      </div><!-- /.contact-cards -->
+    </div><!-- /.contact-info -->
+
+    <!-- Right: Decorative panel -->
+    <div class="contact-deco" aria-hidden="true">
+      <div class="contact-deco__box">
+        <div class="contact-deco__line"></div>
+        <div class="contact-deco__line"></div>
+        <div class="contact-deco__line"></div>
+        <p class="contact-deco__quote">"Great things are built one conversation at a time."</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

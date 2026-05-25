@@ -1,0 +1,87 @@
+{% extends "portfolio/base.html" %}
+{% load static %}
+
+{% block title %}Projects — {% if profile %}{{ profile.name }}{% else %}Portfolio{% endif %}{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     PROJECTS PAGE
+============================================================ -->
+<section class="page-hero">
+  <div class="page-hero__inner">
+    <span class="page-hero__tag">What I've built</span>
+    <h1 class="page-hero__title">Projects</h1>
+  </div>
+</section>
+
+<section class="projects-section">
+  <div class="projects-section__inner">
+
+    {% if projects %}
+      <!-- Loop through every Project from the database -->
+      <div class="projects-grid">
+        {% for project in projects %}
+          <article class="project-card">
+
+            <!-- Project image -->
+            <div class="project-card__image-wrap">
+              {% if project.image %}
+                <img
+                  src="{{ project.image.url }}"
+                  alt="{{ project.title }}"
+                  class="project-card__image"
+                />
+              {% else %}
+                <!-- Placeholder when no image is uploaded -->
+                <div class="project-card__image-placeholder">
+                  <span>{{ project.title|first|upper }}</span>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Card body -->
+            <div class="project-card__body">
+              <h3 class="project-card__title">{{ project.title }}</h3>
+              <p class="project-card__desc">
+                {{ project.description|truncatewords:25 }}
+              </p>
+
+              <div class="project-card__footer">
+                <!-- Date badge -->
+                <span class="project-card__date">
+                  {{ project.created_at|date:"M Y" }}
+                </span>
+
+                <!-- Link button (only shown if a link exists) -->
+                {% if project.link %}
+                  <a
+                    href="{{ project.link }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn--small btn--primary"
+                  >
+                    View Project ↗
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+
+          </article>
+        {% endfor %}
+      </div><!-- /.projects-grid -->
+
+    {% else %}
+      <!-- Shown when no projects have been added yet -->
+      <div class="empty-state">
+        <p class="empty-state__message">
+          No projects yet. Add some from the
+          <a href="/admin/" class="empty-state__link">Django admin panel</a>.
+        </p>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

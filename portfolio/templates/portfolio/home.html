@@ -1,0 +1,97 @@
+{% extends "portfolio/base.html" %}
+{% load static %}
+
+{% block title %}
+  {% if profile %}{{ profile.name }} — Portfolio{% else %}Portfolio{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     HERO SECTION
+============================================================ -->
+<section class="hero">
+  <div class="hero__bg-grid"></div>   <!-- decorative dot-grid overlay -->
+
+  <div class="hero__inner">
+
+    <!-- Left: text -->
+    <div class="hero__text">
+      <span class="hero__eyebrow">Hello, I'm</span>
+
+      <h1 class="hero__name">
+        {% if profile %}{{ profile.name }}{% else %}Your Name{% endif %}
+      </h1>
+
+      <h2 class="hero__title">
+        {% if profile %}{{ profile.title }}{% else %}Developer & Designer{% endif %}
+      </h2>
+
+      <p class="hero__bio">
+        {% if profile %}
+          {{ profile.bio|truncatewords:40 }}
+        {% else %}
+          Welcome to my portfolio. I build things for the web.
+        {% endif %}
+      </p>
+
+      <div class="hero__actions">
+        <a href="{% url 'portfolio:projects' %}" class="btn btn--primary">View My Work</a>
+        <a href="{% url 'portfolio:contact' %}"  class="btn btn--outline">Get In Touch</a>
+      </div>
+    </div>
+
+    <!-- Right: profile image -->
+    <div class="hero__image-wrap">
+      {% if profile and profile.profile_image %}
+        <img
+          src="{{ profile.profile_image.url }}"
+          alt="Photo of {{ profile.name }}"
+          class="hero__image"
+        />
+      {% else %}
+        <!-- Placeholder avatar when no image is uploaded -->
+        <div class="hero__image-placeholder">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="50" cy="38" r="22" fill="var(--teal-400)" opacity=".8"/>
+            <ellipse cx="50" cy="90" rx="35" ry="22" fill="var(--teal-400)" opacity=".5"/>
+          </svg>
+        </div>
+      {% endif %}
+      <div class="hero__image-ring"></div>   <!-- decorative ring -->
+    </div>
+
+  </div><!-- /.hero__inner -->
+
+  <!-- Scroll indicator -->
+  <div class="hero__scroll-hint" aria-hidden="true">
+    <span>Scroll</span>
+    <div class="hero__scroll-line"></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MINI STATS / HIGHLIGHTS STRIP
+============================================================ -->
+<section class="highlights">
+  <div class="highlights__inner">
+    <div class="highlight-card">
+      <span class="highlight-card__number">∞</span>
+      <span class="highlight-card__label">Curiosity</span>
+    </div>
+    <div class="highlight-card">
+      <span class="highlight-card__number">100%</span>
+      <span class="highlight-card__label">Commitment</span>
+    </div>
+    <div class="highlight-card">
+      <span class="highlight-card__number">&#10003;</span>
+      <span class="highlight-card__label">Clean Code</span>
+    </div>
+    <div class="highlight-card">
+      <span class="highlight-card__number">&#9733;</span>
+      <span class="highlight-card__label">Quality First</span>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

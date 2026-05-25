@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Portfolio{% endblock %}</title>
+
+  <!-- Google Fonts: Syne (display) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="{% static 'portfolio/css/style.css' %}" />
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVBAR
+  ============================================================ -->
+  <header class="navbar" id="navbar">
+    <div class="navbar__inner">
+
+      <!-- Logo / site name -->
+      <a href="{% url 'portfolio:home' %}" class="navbar__logo">
+        {% if profile and profile.name %}
+          {{ profile.name }}
+        {% else %}
+          My Portfolio
+        {% endif %}
+      </a>
+
+      <!-- Hamburger button (mobile) -->
+      <button class="navbar__toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+
+      <!-- Navigation links -->
+      <nav class="navbar__links" id="navLinks">
+        <a href="{% url 'portfolio:home' %}"     class="navbar__link {% if page == 'home'     %}active{% endif %}">Home</a>
+        <a href="{% url 'portfolio:about' %}"    class="navbar__link {% if page == 'about'    %}active{% endif %}">About</a>
+        <a href="{% url 'portfolio:projects' %}" class="navbar__link {% if page == 'projects' %}active{% endif %}">Projects</a>
+        <a href="{% url 'portfolio:contact' %}"  class="navbar__link {% if page == 'contact'  %}active{% endif %}">Contact</a>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT  — child templates fill this block
+  ============================================================ -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <p class="footer__copy">
+        &copy; {% now "Y" %}
+        {% if profile %}{{ profile.name }}{% else %}My Portfolio{% endif %}.
+        Built with Django.
+      </p>
+
+      <!-- Social links (only shown if the profile has them) -->
+      {% if profile %}
+      <div class="footer__socials">
+        {% if profile.github_url %}
+          <a href="{{ profile.github_url }}" target="_blank" rel="noopener" class="footer__social-link">GitHub</a>
+        {% endif %}
+        {% if profile.linkedin_url %}
+          <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" class="footer__social-link">LinkedIn</a>
+        {% endif %}
+        {% if profile.email %}
+          <a href="mailto:{{ profile.email }}" class="footer__social-link">Email</a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </footer>
+
+  <!-- Main JavaScript -->
+  <script src="{% static 'portfolio/js/main.js' %}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
