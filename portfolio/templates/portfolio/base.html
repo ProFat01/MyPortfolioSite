@@ -4,6 +4,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!--
+    Theme bootstrap — MUST run before the stylesheet paints anything,
+    otherwise the page flashes dark-then-light (or vice-versa) on
+    load. It reads the saved preference, falls back to the OS-level
+    preference, and sets data-theme on <html> synchronously.
+    Kept tiny and inline on purpose; anything async would defeat
+    the point of running before first paint.
+  -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('portfolio-theme');
+        var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        // localStorage/matchMedia unavailable (e.g. privacy mode) — default to dark
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
   <title>{% block title %}Portfolio{% endblock %}</title>
 
   <!-- Google Fonts: Syne (display) + DM Sans (body) -->
@@ -33,18 +55,43 @@
         {% endif %}
       </a>
 
-      <!-- Hamburger button (mobile) -->
-      <button class="navbar__toggle" id="navToggle" aria-label="Toggle navigation">
-        <span></span><span></span><span></span>
-      </button>
+      <!-- Theme toggle + hamburger + links grouped on the right -->
+      <div class="navbar__right">
 
-      <!-- Navigation links -->
-      <nav class="navbar__links" id="navLinks">
-        <a href="{% url 'portfolio:home' %}"     class="navbar__link {% if page == 'home'     %}active{% endif %}">Home</a>
-        <a href="{% url 'portfolio:about' %}"    class="navbar__link {% if page == 'about'    %}active{% endif %}">About</a>
-        <a href="{% url 'portfolio:projects' %}" class="navbar__link {% if page == 'projects' %}active{% endif %}">Projects</a>
-        <a href="{% url 'portfolio:contact' %}"  class="navbar__link {% if page == 'contact'  %}active{% endif %}">Contact</a>
-      </nav>
+        <!-- Light/Dark theme toggle (works on every page — lives in base.html) -->
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch between light and dark theme" aria-pressed="false" title="Toggle light / dark theme">
+          <!-- Sun icon — shown in light mode -->
+          <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.5"></circle>
+            <line x1="12" y1="1.5" x2="12" y2="4"></line>
+            <line x1="12" y1="20" x2="12" y2="22.5"></line>
+            <line x1="1.5" y1="12" x2="4" y2="12"></line>
+            <line x1="20" y1="12" x2="22.5" y2="12"></line>
+            <line x1="4.6" y1="4.6" x2="6.3" y2="6.3"></line>
+            <line x1="17.7" y1="17.7" x2="19.4" y2="19.4"></line>
+            <line x1="4.6" y1="19.4" x2="6.3" y2="17.7"></line>
+            <line x1="17.7" y1="6.3" x2="19.4" y2="4.6"></line>
+          </svg>
+          <!-- Moon icon — shown in dark mode -->
+          <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"></path>
+          </svg>
+        </button>
+
+        <!-- Hamburger button (mobile) -->
+        <button class="navbar__toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+
+        <!-- Navigation links -->
+        <nav class="navbar__links" id="navLinks">
+          <a href="{% url 'portfolio:home' %}"     class="navbar__link {% if page == 'home'     %}active{% endif %}">Home</a>
+          <a href="{% url 'portfolio:about' %}"    class="navbar__link {% if page == 'about'    %}active{% endif %}">About</a>
+          <a href="{% url 'portfolio:projects' %}" class="navbar__link {% if page == 'projects' %}active{% endif %}">Projects</a>
+          <a href="{% url 'portfolio:contact' %}"  class="navbar__link {% if page == 'contact'  %}active{% endif %}">Contact</a>
+        </nav>
+
+      </div>
 
     </div>
   </header>

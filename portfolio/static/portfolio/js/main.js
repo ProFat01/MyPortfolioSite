@@ -1,6 +1,9 @@
 /**
  * main.js — Portfolio JavaScript
- * Handles: navbar scroll effect, mobile menu, fade-up animations
+ * Handles: navbar scroll effect, mobile menu, scroll-reveal (fade-up)
+ * animations, and the light/dark theme toggle. (The hero entrance
+ * animation on the Home page is pure CSS — see style.css — since it
+ * always plays immediately on load rather than on scroll.)
  */
 
 // ----------------------------------------------------------------
@@ -52,12 +55,59 @@
 
 
 // ----------------------------------------------------------------
-// 3. Scroll-triggered fade-up animation
-//    Any element with class "fade-up" will animate when it enters
-//    the viewport. Add class="fade-up" to any HTML element you want
-//    to animate in.
+// 3. Scroll-triggered fade-up / scroll-reveal animation
+//    Any element with class "fade-up" animates in when it enters
+//    the viewport (see .fade-up / .fade-up.visible in style.css).
+//
+//    IMPORTANT ORDERING: the classes below must be assigned to
+//    elements BEFORE the IntersectionObserver scans the page for
+//    ".fade-up" elements to watch — otherwise the observer would
+//    run its query too early and miss everything that gets tagged
+//    afterwards. Keeping both steps in one block guarantees the
+//    order stays correct.
 // ----------------------------------------------------------------
 (function () {
+
+  // --- Step 1: tag the elements we want to reveal on scroll -----
+
+  // Home page — highlight/stat cards, staggered
+  document.querySelectorAll('.highlight-card').forEach(function (card, index) {
+    card.style.transitionDelay = (index * 0.08) + 's';
+    card.classList.add('fade-up');
+  });
+
+  // Projects page — project cards, staggered
+  document.querySelectorAll('.project-card').forEach(function (card, index) {
+    card.style.transitionDelay = (index * 0.08) + 's';
+    card.classList.add('fade-up');
+  });
+
+  // Contact page — contact cards, staggered
+  document.querySelectorAll('.contact-card').forEach(function (card, index) {
+    card.style.transitionDelay = (index * 0.1) + 's';
+    card.classList.add('fade-up');
+  });
+
+  // Inner-page hero banners (About / Projects / Contact — the Home
+  // page hero animates in immediately via CSS instead, see style.css)
+  document.querySelectorAll('.page-hero__inner').forEach(function (el) {
+    el.classList.add('fade-up');
+  });
+
+  // About page — image column and text column, gently staggered
+  document.querySelectorAll('.about__image-col, .about__text-col').forEach(function (el, index) {
+    el.style.transitionDelay = (index * 0.12) + 's';
+    el.classList.add('fade-up');
+  });
+
+  // Contact page — info column and decorative quote panel
+  document.querySelectorAll('.contact-info, .contact-deco').forEach(function (el, index) {
+    el.style.transitionDelay = (index * 0.12) + 's';
+    el.classList.add('fade-up');
+  });
+
+  // --- Step 2: observe every tagged element --------------------
+
   // IntersectionObserver is supported by all modern browsers
   if (!('IntersectionObserver' in window)) {
     // Fallback: just make everything visible immediately
@@ -83,28 +133,60 @@
     }
   );
 
-  // Observe every element that has the fade-up class
   document.querySelectorAll('.fade-up').forEach(function (el) {
     observer.observe(el);
   });
 })();
 
+
 // ----------------------------------------------------------------
-// 4. Stagger delay helper for project cards
-//    Adds a small CSS animation-delay to each card so they
-//    cascade in one-by-one instead of all at once.
+// 4. Light / Dark theme toggle
+//    The INITIAL theme is already applied by the tiny inline script
+//    in base.html's <head> (it has to run before first paint to
+//    avoid a flash of the wrong theme). This block only wires up
+//    the toggle button so the user can switch it, and remembers
+//    their choice in localStorage under 'portfolio-theme'.
 // ----------------------------------------------------------------
 (function () {
+  var STORAGE_KEY = 'portfolio-theme';
+  var toggle = document.getElementById('themeToggle');
+  if (!toggle) return;
 
-  // Also stagger highlight cards on the home page
-  document.querySelectorAll('.highlight-card').forEach(function (card, index) {
-    card.style.transitionDelay = (index * 0.08) + 's';
-    card.classList.add('fade-up');
+  function currentTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  }
+
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    toggle.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+    try {
+      localStorage.setItem(STORAGE_KEY, theme);
+    } catch (e) {
+      // Storage unavailable (private browsing, etc.) — toggle still
+      // works for the current page view, it just won't persist.
+    }
+  }
+
+  // Sync the button's aria-pressed state with whatever the inline
+  // head script already applied on load.
+  toggle.setAttribute('aria-pressed', currentTheme() === 'light' ? 'true' : 'false');
+
+  toggle.addEventListener('click', function () {
+    setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
   });
 
-  // Stagger contact cards
-  document.querySelectorAll('.contact-card').forEach(function (card, index) {
-    card.style.transitionDelay = (index * 0.1) + 's';
-    card.classList.add('fade-up');
-  });
+  // If the visitor hasn't explicitly chosen a theme on this site yet,
+  // keep following their OS-level light/dark setting live.
+  if (window.matchMedia) {
+    var mql = window.matchMedia('(prefers-color-scheme: light)');
+    var onSystemChange = function (e) {
+      var stored = null;
+      try { stored = localStorage.getItem(STORAGE_KEY); } catch (err) { /* ignore */ }
+      if (!stored) setTheme(e.matches ? 'light' : 'dark');
+    };
+    // addEventListener is the modern API; addListener is the legacy
+    // fallback for older Safari versions.
+    if (mql.addEventListener) mql.addEventListener('change', onSystemChange);
+    else if (mql.addListener) mql.addListener(onSystemChange);
+  }
 })();
