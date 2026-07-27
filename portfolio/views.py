@@ -64,7 +64,6 @@ def projects(request):
     }
     return render(request, 'portfolio/projects.html', context)
 
-
 # ------------------------------------------------------------------
 # Contact page  →  /contact/
 # ------------------------------------------------------------------

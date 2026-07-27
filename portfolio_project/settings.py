@@ -11,15 +11,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY — change this in production!
 SECRET_KEY = 'django-insecure-replace-this-with-a-real-secret-key-in-production'
 
-# Set to False in production
-DEBUG = True
 
-ALLOWED_HOSTS = ['*']  # Restrict this in production (e.g. ['yourdomain.com'])
+# Set to False in production
+DEBUG = False
+
+ALLOWED_HOSTS = ['DevProf.pythonanywhere.com']  # Restrict this in production (e.g. ['yourdomain.com'])
 
 # -------------------------------------------------
 # Installed apps
 # -------------------------------------------------
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -29,6 +31,20 @@ INSTALLED_APPS = [
     'portfolio.apps.PortfolioConfig',           # Our custom app
 ]
 
+# jazzmin settings
+JAZZMIN_SETTINGS = {
+    "welcome_sign": "Welcome Saidu",
+    "copyright": "DevProf Technologies",
+    "site_title": "Saidu Admin",
+    "site_header": "Saidu Portfolio",
+    "site_brand": "DevProf",
+
+    "site_logo": "img/logo.png",
+    "login_logo": "img/logo.png",
+    "site_logo_classes": "img-circle",
+}
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -37,7 +53,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'portfolio_project.urls'
@@ -88,11 +103,11 @@ USE_TZ = True
 # -------------------------------------------------
 # Static files  (CSS, JavaScript, images)
 # -------------------------------------------------
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 STATIC_URL = '/static/'
 # Where collectstatic will copy everything in production
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # -------------------------------------------------
 # Media files  (user-uploaded images)
 # -------------------------------------------------

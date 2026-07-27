@@ -7,6 +7,10 @@ add, edit, and delete Profile and Project records at /admin/.
 from django.contrib import admin
 from .models import Profile, Project
 
+admin.site.site_header = "Saidu Portfolio Admin"
+admin.site.site_title = "Saidu Dashboard"
+admin.site.index_title = "Welcome to Control Center"
+
 
 # ------------------------------------------------------------------
 # Profile admin
