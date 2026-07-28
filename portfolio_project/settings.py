@@ -25,16 +25,16 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
 ]
-# DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-# # Restrict this in production (e.g. ['yourdomain.com']). Reads a
-# # comma-separated ALLOWED_HOSTS env var if present, otherwise keeps the
-# # existing PythonAnywhere host as the default.
-# _allowed_hosts_env = os.environ.get('DJANGO_ALLOWED_HOSTS')
-# ALLOWED_HOSTS = (
-#     [h.strip() for h in _allowed_hosts_env.split(',') if h.strip()]
-#     if _allowed_hosts_env else ['DevProf.pythonanywhere.com']
-# )
+# Restrict this in production (e.g. ['yourdomain.com']). Reads a
+# comma-separated ALLOWED_HOSTS env var if present, otherwise keeps the
+# existing PythonAnywhere host as the default.
+_allowed_hosts_env = os.environ.get('DJANGO_ALLOWED_HOSTS')
+ALLOWED_HOSTS = (
+    [h.strip() for h in _allowed_hosts_env.split(',') if h.strip()]
+    if _allowed_hosts_env else ['DevProf.pythonanywhere.com']
+)
 
 # # -------------------------------------------------
 # # Site identity — used in email templates, SEO meta tags, and sitemap URLs

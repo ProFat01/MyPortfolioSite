@@ -1,16 +1,24 @@
 # Virtual environments
 venv/
-source/
-env/
 .venv/
 
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
-# Django
-*.log
-local_settings.py
+# Database
+db.sqlite3
+
+# Environment variables
+.env
+
+# Static and media (if generated locally)
+staticfiles/
+media/
+
+# VS Code
+.vscode/
 
 # OS files
 .DS_Store
