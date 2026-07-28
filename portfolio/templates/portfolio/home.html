@@ -4,6 +4,31 @@
 {% block title %}
   {% if profile %}{{ profile.name }} — Portfolio{% else %}Portfolio{% endif %}
 {% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block extra_head %}
+{% if profile and profile.profile_image %}
+<link rel="preload" as="image" href="{{ profile.profile_image.url }}" fetchpriority="high" />
+{% endif %}
+{% if profile %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "{{ profile.name|escapejs }}",
+  "jobTitle": "{{ profile.title|escapejs }}"
+  {% if profile.email %},"email": "{{ profile.email|escapejs }}"{% endif %}
+  {% if profile.github_url or profile.linkedin_url %}
+  ,"sameAs": [
+    {% if profile.github_url %}"{{ profile.github_url|escapejs }}"{% endif %}
+    {% if profile.github_url and profile.linkedin_url %},{% endif %}
+    {% if profile.linkedin_url %}"{{ profile.linkedin_url|escapejs }}"{% endif %}
+  ]
+  {% endif %}
+}
+</script>
+{% endif %}
+{% endblock %}
 
 {% block content %}
 
@@ -48,6 +73,7 @@
           src="{{ profile.profile_image.url }}"
           alt="Photo of {{ profile.name }}"
           class="hero__image"
+          fetchpriority="high"
         />
       {% else %}
         <!-- Placeholder avatar when no image is uploaded -->

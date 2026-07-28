@@ -190,3 +190,30 @@
     else if (mql.addListener) mql.addListener(onSystemChange);
   }
 })();
+
+
+// ----------------------------------------------------------------
+// 5. Back-to-top button
+//    Appears once the visitor has scrolled down a bit, and smoothly
+//    scrolls back to the top of the page when clicked.
+// ----------------------------------------------------------------
+(function () {
+  var btn = document.getElementById('backToTop');
+  if (!btn) return;
+
+  function onScroll() {
+    if (window.scrollY > 400) {
+      btn.classList.add('back-to-top--visible');
+    } else {
+      btn.classList.remove('back-to-top--visible');
+    }
+  }
+
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  btn.addEventListener('click', function () {
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
+})();

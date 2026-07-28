@@ -1,0 +1,17 @@
+Hi {{ contact.name }},
+
+Thanks for reaching out through {{ site_name }} — your message has been received.
+
+Here's a copy of what you sent:
+
+Subject: {{ contact.subject }}
+Message: {{ contact.message }}
+
+I read every message personally and will get back to you as soon as I can,
+usually within a couple of business days.
+
+Talk soon,
+{{ owner_name }}
+
+--
+This is an automated confirmation — no need to reply to this email.

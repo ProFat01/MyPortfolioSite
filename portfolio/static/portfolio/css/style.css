@@ -140,6 +140,21 @@ a   { color: inherit; text-decoration: none; }
   padding: 0 24px;
 }
 
+/* Visually hidden but still announced by screen readers — used for
+   context like "(opens in new tab)" that sighted users don't need
+   spelled out because the icon/underline already implies it. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ----------------------------------------------------------
    3. Buttons
    ---------------------------------------------------------- */
@@ -957,7 +972,7 @@ a   { color: inherit; text-decoration: none; }
   max-width: var(--max-width);
   margin: 0 auto;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
@@ -1114,5 +1129,287 @@ a   { color: inherit; text-decoration: none; }
   .projects-grid { grid-template-columns: 1fr; }
 
   .footer__inner { flex-direction: column; align-items: flex-start; }
+}
+
+/* ----------------------------------------------------------
+   15. Skip link (accessibility)
+   Hidden until focused via keyboard (Tab), so screen-reader and
+   keyboard users can jump straight past the navbar to the content.
+   ---------------------------------------------------------- */
+.skip-link {
+  position: absolute;
+  top: -60px;
+  left: 1rem;
+  z-index: 1000;
+  background: var(--teal-500);
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: top var(--duration) var(--ease);
+}
+.skip-link:focus {
+  top: 1rem;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------
+   16. Contact form
+   ---------------------------------------------------------- */
+.contact-form {
+  margin-top: 2.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.contact-form__heading {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.contact-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.contact-form__field {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.contact-form__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.contact-form__label .contact-form__optional {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.contact-form__input,
+.contact-form__textarea {
+  width: 100%;
+  background: var(--bg-800);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  transition: border-color var(--duration) var(--ease),
+              box-shadow var(--duration) var(--ease),
+              background var(--theme-duration) ease;
+}
+
+.contact-form__textarea { resize: vertical; min-height: 140px; }
+
+.contact-form__input::placeholder,
+.contact-form__textarea::placeholder { color: var(--text-muted); }
+
+.contact-form__input:focus,
+.contact-form__textarea:focus {
+  outline: none;
+  border-color: var(--teal-500);
+  box-shadow: 0 0 0 3px var(--teal-glow);
+}
+
+/* Extra-visible ring for keyboard users specifically */
+.contact-form__input:focus-visible,
+.contact-form__textarea:focus-visible {
+  outline: 2px solid var(--teal-400);
+  outline-offset: 1px;
+}
+
+.contact-form__input--error,
+.contact-form__textarea--error {
+  border-color: #e5484d;
+}
+
+.contact-form__error {
+  font-size: 0.82rem;
+  color: #e5484d;
+  min-height: 1.1em;
+}
+
+/* Honeypot field — visually hidden from sighted users, but still
+   present in the DOM/tab order removed so real visitors never
+   interact with it, only bots that blindly fill every field. */
+.contact-form__honeypot {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.contact-form__submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 180px;
+  justify-content: center;
+}
+
+.contact-form__submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Loading spinner shown inside the submit button while sending */
+.contact-form__spinner {
+  display: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: contactSpin 0.7s linear infinite;
+}
+.contact-form__submit--loading .contact-form__spinner { display: inline-block; }
+.contact-form__submit--loading .contact-form__submit-label { opacity: 0.85; }
+
+@keyframes contactSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Success / error banner shown above the form after submission */
+.contact-form__banner {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
+}
+.contact-form__banner--visible {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+.contact-form__banner--success {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #22c55e;
+}
+.contact-form__banner--error {
+  background: rgba(229, 72, 77, 0.1);
+  border: 1px solid rgba(229, 72, 77, 0.35);
+  color: #e5484d;
+}
+.contact-form__banner-icon {
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+}
+
+/* Success checkmark animation drawn inside the banner icon */
+.contact-form__check-circle {
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 70;
+  stroke-dashoffset: 70;
+  animation: contactDrawCircle 0.5s var(--ease) forwards;
+}
+.contact-form__check-mark {
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  animation: contactDrawCheck 0.3s var(--ease) 0.45s forwards;
+}
+@keyframes contactDrawCircle { to { stroke-dashoffset: 0; } }
+@keyframes contactDrawCheck  { to { stroke-dashoffset: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-form__spinner { animation: none; }
+  .contact-form__check-circle,
+  .contact-form__check-mark { animation: none; stroke-dashoffset: 0; }
+}
+
+@media (max-width: 600px) {
+  .contact-form__row { grid-template-columns: 1fr; gap: 0; }
+}
+
+/* ----------------------------------------------------------
+   17. Footer — quick nav + back-to-top
+   ---------------------------------------------------------- */
+.footer__col { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.footer__heading {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.footer__nav { display: flex; flex-direction: column; gap: 0.5rem; }
+.footer__nav-link {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: color var(--duration) var(--ease);
+}
+.footer__nav-link:hover { color: var(--teal-400); }
+
+.back-to-top {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--teal-500);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(15,163,177,0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity var(--duration) var(--ease),
+              transform var(--duration) var(--ease),
+              visibility var(--duration) var(--ease),
+              background var(--duration) var(--ease);
+  z-index: 500;
+}
+.back-to-top--visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.back-to-top:hover { background: var(--teal-400); }
+.back-to-top:focus-visible {
+  outline: 2px solid var(--teal-400);
+  outline-offset: 3px;
+}
+.back-to-top svg { width: 20px; height: 20px; }
+
+@media (max-width: 600px) {
+  .footer__inner { flex-direction: column; align-items: flex-start; gap: 1.75rem; }
+  .back-to-top { right: 1rem; bottom: 1rem; }
 }
 

@@ -15,4 +15,7 @@ urlpatterns = [
     path('about/',     views.about,    name='about'),     # /about/
     path('projects/',  views.projects, name='projects'),  # /projects/
     path('contact/',   views.contact,  name='contact'),   # /contact/
+
+    # Used by the contact page's anti-spam JS to timestamp form render time
+    path('contact/form-timestamp/', views.contact_form_timestamp, name='contact_form_timestamp'),
 ]

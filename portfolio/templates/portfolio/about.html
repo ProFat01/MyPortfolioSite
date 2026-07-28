@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block title %}About — {% if profile %}{{ profile.name }}{% else %}Portfolio{% endif %}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
 
@@ -25,6 +26,7 @@
           src="{{ profile.profile_image.url }}"
           alt="Photo of {{ profile.name }}"
           class="about__image"
+          loading="lazy"
         />
       {% else %}
         <div class="about__image-placeholder">
@@ -40,17 +42,17 @@
       <div class="about__socials">
         {% if profile.github_url %}
           <a href="{{ profile.github_url }}" target="_blank" rel="noopener" class="about__social-btn">
-            ↗ GitHub
+            <span aria-hidden="true">↗</span> GitHub<span class="sr-only"> (opens in new tab)</span>
           </a>
         {% endif %}
         {% if profile.linkedin_url %}
           <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" class="about__social-btn">
-            ↗ LinkedIn
+            <span aria-hidden="true">↗</span> LinkedIn<span class="sr-only"> (opens in new tab)</span>
           </a>
         {% endif %}
         {% if profile.email %}
           <a href="mailto:{{ profile.email }}" class="about__social-btn">
-            ✉ Email Me
+            <span aria-hidden="true">✉</span> Email Me
           </a>
         {% endif %}
       </div>

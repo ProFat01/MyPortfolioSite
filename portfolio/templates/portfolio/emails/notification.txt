@@ -1,0 +1,14 @@
+New contact form submission — {{ site_name }}
+
+Name:    {{ contact.name }}
+Email:   {{ contact.email }}
+Phone:   {{ contact.phone|default:"—" }}
+Subject: {{ contact.subject }}
+Date:    {{ contact.created_at|date:"l, d F Y" }}
+Time:    {{ contact.created_at|time:"H:i" }}
+
+Message:
+{{ contact.message }}
+
+--
+Sent automatically from the {{ site_name }} contact form.

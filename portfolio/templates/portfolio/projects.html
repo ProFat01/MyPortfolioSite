@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block title %}Projects — {% if profile %}{{ profile.name }}{% else %}Portfolio{% endif %}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
 
@@ -31,6 +32,8 @@
                   src="{{ project.image.url }}"
                   alt="{{ project.title }}"
                   class="project-card__image"
+                  loading="lazy"
+                  decoding="async"
                 />
               {% else %}
                 <!-- Placeholder when no image is uploaded -->
@@ -42,7 +45,7 @@
 
             <!-- Card body -->
             <div class="project-card__body">
-              <h3 class="project-card__title">{{ project.title }}</h3>
+              <h2 class="project-card__title">{{ project.title }}</h2>
               <p class="project-card__desc">
                 {{ project.description|truncatewords:25 }}
               </p>
@@ -61,7 +64,7 @@
                     rel="noopener noreferrer"
                     class="btn btn--small btn--primary"
                   >
-                    View Project ↗
+                    View Project <span aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span>
                   </a>
                 {% endif %}
               </div>

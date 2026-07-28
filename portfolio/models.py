@@ -57,3 +57,30 @@ class Project(models.Model):
     class Meta:
         # Newest projects shown first
         ordering = ['-created_at']
+
+
+class ContactMessage(models.Model):
+    """
+    Stores every message submitted through the public Contact form.
+    Acts as a durable backup of every enquiry — even if outbound email
+    (notification/confirmation) fails for any reason, nothing is lost
+    and the message can still be reviewed from the admin panel.
+    """
+    name    = models.CharField(max_length=100)
+    email   = models.EmailField()
+    phone   = models.CharField(max_length=30, blank=True)
+    subject = models.CharField(max_length=150)
+    message = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # True if the notification email to the site owner was sent successfully.
+    notified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.name} — {self.subject}"
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Contact message"
+        verbose_name_plural = "Contact messages"

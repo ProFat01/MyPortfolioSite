@@ -5,7 +5,7 @@ add, edit, and delete Profile and Project records at /admin/.
 """
 
 from django.contrib import admin
-from .models import Profile, Project
+from .models import Profile, Project, ContactMessage
 
 admin.site.site_header = "Saidu Portfolio Admin"
 admin.site.site_title = "Saidu Dashboard"
@@ -29,3 +29,19 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display  = ('title', 'created_at', 'link')   # table columns
     search_fields = ('title', 'description')           # search box
     ordering      = ('-created_at',)                   # newest first
+
+
+# ------------------------------------------------------------------
+# Contact message admin
+# ------------------------------------------------------------------
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display   = ('name', 'email', 'subject', 'created_at', 'notified')
+    list_filter    = ('notified', 'created_at')
+    search_fields  = ('name', 'email', 'subject', 'message')
+    ordering       = ('-created_at',)
+    readonly_fields = ('name', 'email', 'phone', 'subject', 'message', 'created_at', 'notified')
+
+    def has_add_permission(self, request):
+        # These only ever come from the public contact form.
+        return False

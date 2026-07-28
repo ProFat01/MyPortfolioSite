@@ -7,10 +7,23 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static  # needed to serve media in dev
+from django.contrib.sitemaps.views import sitemap
+
+from portfolio.sitemaps import StaticViewSitemap, ProjectSitemap
+from portfolio.views import robots_txt
+
+sitemaps = {
+    'static': StaticViewSitemap,
+    'projects': ProjectSitemap,
+}
 
 urlpatterns = [
     # Django admin panel
     path('admin/', admin.site.urls),
+
+    # SEO helpers
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('robots.txt', robots_txt, name='robots_txt'),
 
     # All portfolio-app URLs (defined in portfolio/urls.py)
     path('', include('portfolio.urls')),

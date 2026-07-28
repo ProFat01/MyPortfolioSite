@@ -9,13 +9,38 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY — change this in production!
-SECRET_KEY = 'django-insecure-replace-this-with-a-real-secret-key-in-production'
+# Reads from the environment first so PythonAnywhere (or any host) can set
+# a real secret key without editing this file; falls back to the original
+# placeholder so nothing breaks if the env var isn't set yet.
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-replace-this-with-a-real-secret-key-in-production',
+)
 
 
 # Set to False in production
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['DevProf.pythonanywhere.com']  # Restrict this in production (e.g. ['yourdomain.com'])
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+]
+# DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+
+# # Restrict this in production (e.g. ['yourdomain.com']). Reads a
+# # comma-separated ALLOWED_HOSTS env var if present, otherwise keeps the
+# # existing PythonAnywhere host as the default.
+# _allowed_hosts_env = os.environ.get('DJANGO_ALLOWED_HOSTS')
+# ALLOWED_HOSTS = (
+#     [h.strip() for h in _allowed_hosts_env.split(',') if h.strip()]
+#     if _allowed_hosts_env else ['DevProf.pythonanywhere.com']
+# )
+
+# # -------------------------------------------------
+# # Site identity — used in email templates, SEO meta tags, and sitemap URLs
+# # -------------------------------------------------
+# SITE_NAME = os.environ.get('SITE_NAME', 'Saidu — Portfolio')
+# SITE_URL = os.environ.get('SITE_URL', 'https://DevProf.pythonanywhere.com')
 
 # -------------------------------------------------
 # Installed apps
@@ -28,8 +53,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
     'portfolio.apps.PortfolioConfig',           # Our custom app
 ]
+
+SITE_ID = 1
 
 # jazzmin settings
 JAZZMIN_SETTINGS = {
@@ -115,3 +144,43 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# -------------------------------------------------
+# Email — powers the Contact form's notification + confirmation emails.
+#
+# Local/dev default: prints emails to the console, so nothing needs to
+# be configured to test the flow locally.
+#
+# Production (PythonAnywhere or any SMTP host): set these environment
+# variables and nothing else needs to change:
+#
+#   DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+#   EMAIL_HOST=smtp.gmail.com          (or your provider's SMTP host)
+#   EMAIL_PORT=587
+#   EMAIL_USE_TLS=True
+#   EMAIL_HOST_USER=you@example.com
+#   EMAIL_HOST_PASSWORD=your-app-password
+#   DEFAULT_FROM_EMAIL=you@example.com
+#   CONTACT_RECIPIENT_EMAIL=you@example.com   (where enquiries land — can differ from the sender)
+# -------------------------------------------------
+EMAIL_BACKEND = os.environ.get(
+    'DJANGO_EMAIL_BACKEND',
+    'django.core.mail.backends.console.EmailBackend',
+)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-reply@example.com')
+
+# Who receives the "new contact form message" notification.
+CONTACT_RECIPIENT_EMAIL = os.environ.get('CONTACT_RECIPIENT_EMAIL', DEFAULT_FROM_EMAIL)
+
+# Name used to sign the visitor confirmation email.
+CONTACT_OWNER_NAME = os.environ.get('CONTACT_OWNER_NAME', 'Saidu')
+
+# Set to False to disable the automatic visitor confirmation email
+# while still keeping the owner notification email active.
+CONTACT_SEND_CONFIRMATION = os.environ.get('CONTACT_SEND_CONFIRMATION', 'True') == 'True'

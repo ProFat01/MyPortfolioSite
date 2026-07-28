@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block title %}Contact — {% if profile %}{{ profile.name }}{% else %}Portfolio{% endif %}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
 
@@ -18,7 +19,7 @@
 <section class="contact-section">
   <div class="contact-section__inner">
 
-    <!-- Left: Intro copy -->
+    <!-- Left: Intro copy + form -->
     <div class="contact-info">
       <h2 class="contact-info__heading">Get In Touch</h2>
       <p class="contact-info__text">
@@ -32,7 +33,7 @@
 
         {% if profile and profile.email %}
         <a href="mailto:{{ profile.email }}" class="contact-card">
-          <div class="contact-card__icon">✉</div>
+          <div class="contact-card__icon" aria-hidden="true">✉</div>
           <div class="contact-card__info">
             <span class="contact-card__label">Email</span>
             <span class="contact-card__value">{{ profile.email }}</span>
@@ -42,20 +43,20 @@
 
         {% if profile and profile.github_url %}
         <a href="{{ profile.github_url }}" target="_blank" rel="noopener" class="contact-card">
-          <div class="contact-card__icon">&#60;/&#62;</div>
+          <div class="contact-card__icon" aria-hidden="true">&#60;/&#62;</div>
           <div class="contact-card__info">
             <span class="contact-card__label">GitHub</span>
-            <span class="contact-card__value">View my repositories ↗</span>
+            <span class="contact-card__value">View my repositories ↗<span class="sr-only"> (opens in new tab)</span></span>
           </div>
         </a>
         {% endif %}
 
         {% if profile and profile.linkedin_url %}
         <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" class="contact-card">
-          <div class="contact-card__icon">in</div>
+          <div class="contact-card__icon" aria-hidden="true">in</div>
           <div class="contact-card__info">
             <span class="contact-card__label">LinkedIn</span>
-            <span class="contact-card__value">Connect with me ↗</span>
+            <span class="contact-card__value">Connect with me ↗<span class="sr-only"> (opens in new tab)</span></span>
           </div>
         </a>
         {% endif %}
@@ -67,6 +68,81 @@
         {% endif %}
 
       </div><!-- /.contact-cards -->
+
+      <!-- ========================================================
+           CONTACT FORM
+      ======================================================== -->
+      <div class="contact-form">
+        <h3 class="contact-form__heading">Send a message</h3>
+
+        <!-- Banner: shown/filled by contact.js after submission -->
+        <div class="contact-form__banner" id="contactBanner">
+          <span id="contactBannerIcon"></span>
+          <span id="contactBannerText"></span>
+        </div>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="contact-form__banner contact-form__banner--visible contact-form__banner--success" role="status">
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <form
+          method="post"
+          action="{% url 'portfolio:contact' %}"
+          id="contactForm"
+          data-timestamp-url="{% url 'portfolio:contact_form_timestamp' %}"
+          novalidate
+        >
+          {% csrf_token %}
+
+          <!-- Honeypot — real visitors never see/fill this -->
+          {{ form.website }}
+          {{ form.form_rendered_at }}
+
+          <div class="contact-form__row">
+            <div class="contact-form__field">
+              <label class="contact-form__label" for="{{ form.name.id_for_label }}">Full name</label>
+              {{ form.name }}
+              <span class="contact-form__error" id="error-name">{{ form.name.errors.0 }}</span>
+            </div>
+            <div class="contact-form__field">
+              <label class="contact-form__label" for="{{ form.email.id_for_label }}">Email</label>
+              {{ form.email }}
+              <span class="contact-form__error" id="error-email">{{ form.email.errors.0 }}</span>
+            </div>
+          </div>
+
+          <div class="contact-form__row">
+            <div class="contact-form__field">
+              <label class="contact-form__label" for="{{ form.phone.id_for_label }}">
+                Phone <span class="contact-form__optional">(optional)</span>
+              </label>
+              {{ form.phone }}
+              <span class="contact-form__error" id="error-phone">{{ form.phone.errors.0 }}</span>
+            </div>
+            <div class="contact-form__field">
+              <label class="contact-form__label" for="{{ form.subject.id_for_label }}">Subject</label>
+              {{ form.subject }}
+              <span class="contact-form__error" id="error-subject">{{ form.subject.errors.0 }}</span>
+            </div>
+          </div>
+
+          <div class="contact-form__field">
+            <label class="contact-form__label" for="{{ form.message.id_for_label }}">Message</label>
+            {{ form.message }}
+            <span class="contact-form__error" id="error-message">{{ form.message.errors.0 }}</span>
+          </div>
+
+          <button type="submit" class="btn btn--primary contact-form__submit" id="contactSubmit">
+            <span class="contact-form__spinner" aria-hidden="true"></span>
+            <span class="contact-form__submit-label">Send Message</span>
+          </button>
+        </form>
+      </div><!-- /.contact-form -->
+
     </div><!-- /.contact-info -->
 
     <!-- Right: Decorative panel -->
@@ -82,4 +158,8 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'portfolio/js/contact.js' %}" defer></script>
 {% endblock %}

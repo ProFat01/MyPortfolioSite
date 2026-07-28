@@ -28,9 +28,40 @@
 
   <title>{% block title %}Portfolio{% endblock %}</title>
 
-  <!-- Google Fonts: Syne (display) + DM Sans (body) -->
+  {% block meta %}
+  <meta name="description" content="{% block meta_description %}{{ meta_description|default:'Personal portfolio and selected work.' }}{% endblock %}" />
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="{% if profile and profile.name %}{{ profile.name }}{% else %}Portfolio{% endif %}" />
+  <meta property="og:title" content="{% block og_title %}{{ profile.name|default:'Portfolio' }}{% endblock %}" />
+  <meta property="og:description" content="{{ meta_description|default:'Personal portfolio and selected work.' }}" />
+  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+  {% if profile and profile.profile_image %}
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ profile.profile_image.url }}" />
+  {% endif %}
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ profile.name|default:'Portfolio' }}" />
+  <meta name="twitter:description" content="{{ meta_description|default:'Personal portfolio and selected work.' }}" />
+  {% if profile and profile.profile_image %}
+  <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ profile.profile_image.url }}" />
+  {% endif %}
+  {% endblock %}
+
+  <!-- Favicon / browser chrome -->
+  <link rel="icon" type="image/png" href="{% static 'portfolio/img/logo.png' %}" />
+  <link rel="apple-touch-icon" href="{% static 'portfolio/img/logo.png' %}" />
+  <link rel="manifest" href="{% static 'portfolio/site.webmanifest' %}" />
+  <meta name="theme-color" content="#0a0f1e" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f6f8fc" media="(prefers-color-scheme: light)" />
+
+  <!-- Performance: connect to font origins early, preload the stylesheet -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
 
   <!-- Main stylesheet -->
@@ -39,6 +70,9 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+
+  <!-- Skip link: lets keyboard/screen-reader users jump past the navbar -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <!-- ============================================================
        NAVBAR
@@ -79,16 +113,16 @@
         </button>
 
         <!-- Hamburger button (mobile) -->
-        <button class="navbar__toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+        <button class="navbar__toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navLinks">
           <span></span><span></span><span></span>
         </button>
 
         <!-- Navigation links -->
-        <nav class="navbar__links" id="navLinks">
-          <a href="{% url 'portfolio:home' %}"     class="navbar__link {% if page == 'home'     %}active{% endif %}">Home</a>
-          <a href="{% url 'portfolio:about' %}"    class="navbar__link {% if page == 'about'    %}active{% endif %}">About</a>
-          <a href="{% url 'portfolio:projects' %}" class="navbar__link {% if page == 'projects' %}active{% endif %}">Projects</a>
-          <a href="{% url 'portfolio:contact' %}"  class="navbar__link {% if page == 'contact'  %}active{% endif %}">Contact</a>
+        <nav class="navbar__links" id="navLinks" aria-label="Primary">
+          <a href="{% url 'portfolio:home' %}"     class="navbar__link {% if page == 'home'     %}active{% endif %}" {% if page == 'home' %}aria-current="page"{% endif %}>Home</a>
+          <a href="{% url 'portfolio:about' %}"    class="navbar__link {% if page == 'about'    %}active{% endif %}" {% if page == 'about' %}aria-current="page"{% endif %}>About</a>
+          <a href="{% url 'portfolio:projects' %}" class="navbar__link {% if page == 'projects' %}active{% endif %}" {% if page == 'projects' %}aria-current="page"{% endif %}>Projects</a>
+          <a href="{% url 'portfolio:contact' %}"  class="navbar__link {% if page == 'contact'  %}active{% endif %}" {% if page == 'contact' %}aria-current="page"{% endif %}>Contact</a>
         </nav>
 
       </div>
@@ -99,7 +133,7 @@
   <!-- ============================================================
        MAIN CONTENT  — child templates fill this block
   ============================================================ -->
-  <main class="main-content">
+  <main class="main-content" id="main-content">
     {% block content %}{% endblock %}
   </main>
 
@@ -108,31 +142,53 @@
   ============================================================ -->
   <footer class="footer">
     <div class="footer__inner">
-      <p class="footer__copy">
-        &copy; {% now "Y" %}
-        {% if profile %}{{ profile.name }}{% else %}My Portfolio{% endif %}.
-        Built with Django.
-      </p>
 
-      <!-- Social links (only shown if the profile has them) -->
-      {% if profile %}
-      <div class="footer__socials">
-        {% if profile.github_url %}
-          <a href="{{ profile.github_url }}" target="_blank" rel="noopener" class="footer__social-link">GitHub</a>
-        {% endif %}
-        {% if profile.linkedin_url %}
-          <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" class="footer__social-link">LinkedIn</a>
-        {% endif %}
-        {% if profile.email %}
-          <a href="mailto:{{ profile.email }}" class="footer__social-link">Email</a>
+      <div class="footer__col">
+        <p class="footer__copy">
+          &copy; {% now "Y" %}
+          {% if profile %}{{ profile.name }}{% else %}My Portfolio{% endif %}.
+          Built with Django.
+        </p>
+
+        <!-- Social links (only shown if the profile has them) -->
+        {% if profile %}
+        <div class="footer__socials">
+          {% if profile.github_url %}
+            <a href="{{ profile.github_url }}" target="_blank" rel="noopener" class="footer__social-link" aria-label="{{ profile.name }} on GitHub (opens in new tab)">GitHub</a>
+          {% endif %}
+          {% if profile.linkedin_url %}
+            <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" class="footer__social-link" aria-label="{{ profile.name }} on LinkedIn (opens in new tab)">LinkedIn</a>
+          {% endif %}
+          {% if profile.email %}
+            <a href="mailto:{{ profile.email }}" class="footer__social-link" aria-label="Email {{ profile.name }}">Email</a>
+          {% endif %}
+        </div>
         {% endif %}
       </div>
-      {% endif %}
+
+      <div class="footer__col">
+        <span class="footer__heading">Quick links</span>
+        <nav class="footer__nav" aria-label="Footer">
+          <a href="{% url 'portfolio:home' %}" class="footer__nav-link">Home</a>
+          <a href="{% url 'portfolio:about' %}" class="footer__nav-link">About</a>
+          <a href="{% url 'portfolio:projects' %}" class="footer__nav-link">Projects</a>
+          <a href="{% url 'portfolio:contact' %}" class="footer__nav-link">Contact</a>
+        </nav>
+      </div>
+
     </div>
   </footer>
 
-  <!-- Main JavaScript -->
-  <script src="{% static 'portfolio/js/main.js' %}"></script>
+  <!-- Back-to-top button -->
+  <button type="button" class="back-to-top" id="backToTop" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="12" y1="19" x2="12" y2="5"></line>
+      <polyline points="6 11 12 5 18 11"></polyline>
+    </svg>
+  </button>
+
+  <!-- Main JavaScript (deferred: parses HTML first, runs once DOM is ready) -->
+  <script src="{% static 'portfolio/js/main.js' %}" defer></script>
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>
