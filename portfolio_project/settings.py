@@ -36,11 +36,11 @@ ALLOWED_HOSTS = (
     if _allowed_hosts_env else ['DevProf.pythonanywhere.com']
 )
 
-# # -------------------------------------------------
-# # Site identity — used in email templates, SEO meta tags, and sitemap URLs
-# # -------------------------------------------------
-# SITE_NAME = os.environ.get('SITE_NAME', 'Saidu — Portfolio')
-# SITE_URL = os.environ.get('SITE_URL', 'https://DevProf.pythonanywhere.com')
+# -------------------------------------------------
+# Site identity — used in email templates, SEO meta tags, and sitemap URLs
+# -------------------------------------------------
+SITE_NAME = os.environ.get('SITE_NAME', 'Saidu — Portfolio')
+SITE_URL = os.environ.get('SITE_URL', 'https://DevProf.pythonanywhere.com')
 
 # -------------------------------------------------
 # Installed apps
