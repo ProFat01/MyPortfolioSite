@@ -156,10 +156,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #   DEFAULT_FROM_EMAIL=you@example.com
 #   CONTACT_RECIPIENT_EMAIL=you@example.com   (where enquiries land — can differ from the sender)
 # -------------------------------------------------
-EMAIL_BACKEND = os.environ.get(
-    'DJANGO_EMAIL_BACKEND',
-    'django.core.mail.backends.console.EmailBackend',
-)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
