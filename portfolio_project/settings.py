@@ -13,8 +13,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # a real secret key without editing this file; falls back to the original
 # placeholder so nothing breaks if the env var isn't set yet.
 env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-environ.Env.read_env(BASE_DIR / ".env")
+SECRET_KEY = env(
+    "DJANGO_SECRET_KEY",
+    default="8jsi6-@#yj&=eekufua#f4hkpo*u495p7c4r1fpv1r046^yk-1",
+)
 
 # Set to False in production
 # Detect whether we're running on PythonAnywhere
@@ -162,7 +166,7 @@ EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'alsaeedn159@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'xycu yobf hxmw ovcj')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Saidu Portfolio <alsaeedn159@gmail.com>')
 
