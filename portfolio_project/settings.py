@@ -4,7 +4,7 @@ Django settings for portfolio_project.
 
 from pathlib import Path
 import os
-
+import environ
 # Base directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,30 +12,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Reads from the environment first so PythonAnywhere (or any host) can set
 # a real secret key without editing this file; falls back to the original
 # placeholder so nothing breaks if the env var isn't set yet.
-SECRET_KEY = os.environ.get(
-    'DJANGO_SECRET_KEY',
-    'django-insecure-replace-this-with-a-real-secret-key-in-production',
-)
+env = environ.Env()
 
+environ.Env.read_env(BASE_DIR / ".env")
 
 # Set to False in production
-DEBUG = True
+# Detect whether we're running on PythonAnywhere
+ON_PYTHONANYWHERE = "PYTHONANYWHERE_SITE" in os.environ
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-]
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
-
-# Restrict this in production (e.g. ['yourdomain.com']). Reads a
-# comma-separated ALLOWED_HOSTS env var if present, otherwise keeps the
-# existing PythonAnywhere host as the default.
-_allowed_hosts_env = os.environ.get('DJANGO_ALLOWED_HOSTS')
-ALLOWED_HOSTS = (
-    [h.strip() for h in _allowed_hosts_env.split(',') if h.strip()]
-    if _allowed_hosts_env else ['DevProf.pythonanywhere.com']
-)
-
+if ON_PYTHONANYWHERE:
+    DEBUG = False
+    ALLOWED_HOSTS = ["DevProf.pythonanywhere.com"]
+else:
+    DEBUG = True
+    ALLOWED_HOSTS = [
+        "127.0.0.1",
+        "localhost",
+    ]
 # -------------------------------------------------
 # Site identity — used in email templates, SEO meta tags, and sitemap URLs
 # -------------------------------------------------
@@ -167,13 +160,13 @@ EMAIL_BACKEND = os.environ.get(
     'DJANGO_EMAIL_BACKEND',
     'django.core.mail.backends.console.EmailBackend',
 )
-EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'alsaeedn159@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'xycu yobf hxmw ovcj')
 
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-reply@example.com')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Saidu Portfolio <alsaeedn159@gmail.com>')
 
 # Who receives the "new contact form message" notification.
 CONTACT_RECIPIENT_EMAIL = os.environ.get('CONTACT_RECIPIENT_EMAIL', DEFAULT_FROM_EMAIL)
