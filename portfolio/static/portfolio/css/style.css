@@ -1413,3 +1413,141 @@ a   { color: inherit; text-decoration: none; }
   .back-to-top { right: 1rem; bottom: 1rem; }
 }
 
+/* ----------------------------------------------------------
+   18. Page loader
+   Full-screen branded loading overlay. Visible by default (no
+   "visible" class needed) so it can never be skipped by a slow
+   script — main.js only ever ADDS .page-loader--hidden once the
+   page is ready. See main.js "Page loader" section for the
+   hide/failsafe logic and templates/portfolio/base.html for the
+   <noscript> failsafe if JS is unavailable.
+   ---------------------------------------------------------- */
+html.is-loading,
+body.is-loading {
+  /* Prevent scroll + layout shift while the overlay is up. Always
+     paired with a JS/noscript failsafe that removes this class, so
+     it can never permanently lock the page. */
+  overflow: hidden;
+  height: 100%;
+}
+
+.page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-900);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s var(--ease), visibility 0.5s var(--ease);
+}
+
+.page-loader--hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* --- Centre mark: glow + ring + logo, all sharing one origin --- */
+.page-loader__mark {
+  position: relative;
+  width: clamp(72px, 18vw, 108px);
+  height: clamp(72px, 18vw, 108px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-loader__glow {
+  position: absolute;
+  inset: -40%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--teal-glow) 0%, transparent 70%);
+  filter: blur(6px);
+  animation: loaderPulse 2.2s ease-in-out infinite;
+}
+
+.page-loader__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  /* Conic gradient "comet" ring — cheap to animate (transform only),
+     no box-shadow/filter recalculated per frame. */
+  background: conic-gradient(from 0deg, transparent 0%, var(--teal-400) 18%, transparent 40%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  animation: loaderSpin 1.1s linear infinite;
+}
+
+.page-loader__logo {
+  position: relative;
+  width: 46%;
+  height: 46%;
+  object-fit: contain;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.85);
+  animation: loaderLogoIn 0.6s var(--ease) forwards,
+             loaderLogoBreathe 2.4s ease-in-out 0.6s infinite;
+}
+
+@keyframes loaderSpin    { to { transform: rotate(360deg); } }
+@keyframes loaderPulse   { 0%, 100% { opacity: 0.55; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.08); } }
+@keyframes loaderLogoIn  { to { opacity: 1; transform: scale(1); } }
+@keyframes loaderLogoBreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+
+/* --- Floating particles: a handful of small blurred dots, purely
+   CSS-driven (no per-frame JS, no canvas) --- */
+.page-loader__particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.page-loader__particles span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--teal-300);
+  opacity: 0;
+  filter: blur(0.5px);
+  animation: loaderFloat 5.5s ease-in-out infinite;
+}
+.page-loader__particles span:nth-child(1) { left: 28%; top: 62%; animation-delay: 0s;    }
+.page-loader__particles span:nth-child(2) { left: 68%; top: 58%; animation-delay: 0.9s;  }
+.page-loader__particles span:nth-child(3) { left: 42%; top: 72%; animation-delay: 1.8s;  }
+.page-loader__particles span:nth-child(4) { left: 58%; top: 30%; animation-delay: 2.6s;  }
+.page-loader__particles span:nth-child(5) { left: 35%; top: 32%; animation-delay: 3.4s;  }
+
+@keyframes loaderFloat {
+  0%   { opacity: 0;    transform: translateY(0)     scale(0.8); }
+  15%  { opacity: 0.5;  }
+  50%  { opacity: 0.28; transform: translateY(-26px) scale(1);   }
+  85%  { opacity: 0;    }
+  100% { opacity: 0;    transform: translateY(-52px) scale(0.8); }
+}
+
+/* Reduced motion: keep only a plain fade, nothing that moves */
+@media (prefers-reduced-motion: reduce) {
+  .page-loader,
+  .page-loader__glow,
+  .page-loader__ring,
+  .page-loader__logo,
+  .page-loader__particles span {
+    animation: none !important;
+  }
+  .page-loader__logo { opacity: 1; transform: none; }
+  .page-loader__ring { display: none; }
+  .page-loader__particles { display: none; }
+  .page-loader { transition: opacity 0.3s ease; }
+}
+
+/* Mobile: slightly smaller mark, glow kept proportional via clamp()
+   above already — nothing else needs adjusting, no overflow risk
+   since .page-loader__particles clips to the viewport. */
+@media (max-width: 480px) {
+  .page-loader__mark { width: clamp(60px, 22vw, 84px); height: clamp(60px, 22vw, 84px); }
+}

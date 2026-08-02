@@ -217,3 +217,71 @@
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
   });
 })();
+
+
+// ----------------------------------------------------------------
+// 6. Page loader
+//    The loader is already visible the moment the page paints
+//    (plain CSS default — see style.css "18. Page loader"), so it
+//    can never be skipped by a slow or failed script. This block's
+//    only jobs are:
+//      a) hide it once the page has actually finished loading
+//      b) never let it get stuck (hard failsafe timeout)
+//      c) remember (sessionStorage) that the visitor has already
+//         seen the full animation this session, so later page loads
+//         within the same visit use a much shorter minimum display
+//         time instead of the full first-visit one.
+// ----------------------------------------------------------------
+(function () {
+  var loader = document.getElementById('pageLoader');
+  if (!loader) return;
+
+  var STORAGE_KEY = 'portfolio-loaded';
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var seenThisSession = false;
+  try { seenThisSession = !!sessionStorage.getItem(STORAGE_KEY); } catch (e) {
+    // sessionStorage unavailable (private browsing, etc.) — falls
+    // back to treating every page as a "first visit", which is safe.
+  }
+
+  // Minimum time the loader stays visible, so it never reads as a
+  // meaningless flicker even when the page loads instantly (e.g.
+  // from cache). Reduced-motion visitors skip the minimum entirely.
+  var minDisplay = reduceMotion ? 0 : (seenThisSession ? 150 : 600);
+  var shownAt = Date.now();
+  var hidden = false;
+
+  function hideLoader() {
+    if (hidden) return;
+    hidden = true;
+
+    loader.classList.add('page-loader--hidden');
+    document.documentElement.classList.remove('is-loading');
+    document.body.classList.remove('is-loading');
+
+    try { sessionStorage.setItem(STORAGE_KEY, '1'); } catch (e) { /* ignore */ }
+
+    // Remove it from the DOM once the fade-out transition finishes
+    // (matches the 0.5s transition in style.css) so it stops taking
+    // up space and can't intercept anything, even by accident.
+    window.setTimeout(function () {
+      if (loader.parentNode) loader.parentNode.removeChild(loader);
+    }, 550);
+  }
+
+  function onReady() {
+    var elapsed = Date.now() - shownAt;
+    window.setTimeout(hideLoader, Math.max(0, minDisplay - elapsed));
+  }
+
+  if (document.readyState === 'complete') {
+    onReady();
+  } else {
+    window.addEventListener('load', onReady);
+  }
+
+  // Hard failsafe: whatever happens above, the loader is never
+  // allowed to block the site for more than a few seconds.
+  window.setTimeout(hideLoader, 4000);
+})();

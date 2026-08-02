@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="is-loading">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -70,6 +70,36 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+
+  <!-- ============================================================
+       PAGE LOADER
+       Shown by default via CSS the instant the (render-blocking)
+       stylesheet loads — no JS required to display it, so it can
+       never be skipped by a slow or broken script. main.js is only
+       responsible for hiding it once the page is actually ready
+       (see "Page loader" section at the bottom of main.js).
+       aria-hidden + no focusable content: purely decorative, never
+       intercepts keyboard/screen-reader users.
+  ============================================================ -->
+  <div class="page-loader" id="pageLoader" aria-hidden="true">
+    <div class="page-loader__particles">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="page-loader__mark">
+      <div class="page-loader__glow"></div>
+      <div class="page-loader__ring"></div>
+      <img src="{% static 'portfolio/img/logo.png' %}" alt="" class="page-loader__logo" />
+    </div>
+  </div>
+  <noscript>
+    <style>
+      /* Failsafe: with JS disabled, main.js can never hide the loader
+         or remove the is-loading lock — so force both off here and
+         the site behaves as if there were no loader at all. */
+      .page-loader { display: none !important; }
+      html.is-loading, body.is-loading { overflow: auto !important; height: auto !important; }
+    </style>
+  </noscript>
 
   <!-- Skip link: lets keyboard/screen-reader users jump past the navbar -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
