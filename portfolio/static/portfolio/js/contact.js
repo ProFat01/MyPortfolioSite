@@ -10,11 +10,14 @@
   var form = document.getElementById('contactForm');
   if (!form) return;
 
-  var submitBtn   = document.getElementById('contactSubmit');
-  var banner      = document.getElementById('contactBanner');
-  var bannerIcon  = document.getElementById('contactBannerIcon');
-  var bannerText  = document.getElementById('contactBannerText');
+  var submitBtn    = document.getElementById('contactSubmit');
+  var submitLabel  = form.querySelector('.contact-form__submit-label');
+  var banner       = document.getElementById('contactBanner');
+  var bannerIcon   = document.getElementById('contactBannerIcon');
+  var bannerText   = document.getElementById('contactBannerText');
   var isSubmitting = false;
+
+  var originalLabel = submitLabel ? submitLabel.textContent : 'Send Message';
 
   var SUCCESS_ICON =
     '<svg class="contact-form__banner-icon" viewBox="0 0 24 24" aria-hidden="true">' +
@@ -27,6 +30,22 @@
     '<circle class="contact-form__check-circle" cx="12" cy="12" r="10"></circle>' +
     '<path class="contact-form__check-mark" d="M8 8l8 8M16 8l-8 8"></path>' +
     '</svg>';
+
+  // Mirrors the server-side rules in forms.py — purely for instant
+  // feedback. The server remains the source of truth; every response
+  // still runs through the same showFieldErrors()/showBanner() path.
+  var CLIENT_RULES = {
+    name: function (v) { return v.trim().length < 2 ? 'Please enter your full name.' : null; },
+    email: function (v) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? null : 'Please enter a valid email address.';
+    },
+    subject: function (v) { return v.trim().length < 3 ? 'Please add a short subject for your message.' : null; },
+    message: function (v) {
+      if (v.trim().length < 10) return 'Your message is a little too short — please add more detail.';
+      if (v.trim().length > 5000) return 'Your message is too long (5000 characters max).';
+      return null;
+    },
+  };
 
   function getCookie(name) {
     var match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
@@ -70,11 +89,53 @@
     });
   }
 
+  // Client-side pre-check, run before the fetch. Returns a
+  // { fieldName: [{message}] } map matching the server's shape, or
+  // null if everything looks fine, so it can flow through the exact
+  // same showFieldErrors()/showBanner() rendering path.
+  function runClientValidation() {
+    var errors = {};
+    Object.keys(CLIENT_RULES).forEach(function (fieldName) {
+      var input = form.querySelector('[name="' + fieldName + '"]');
+      if (!input) return;
+      var message = CLIENT_RULES[fieldName](input.value || '');
+      if (message) errors[fieldName] = [{ message: message }];
+    });
+    return Object.keys(errors).length ? errors : null;
+  }
+
   function setLoading(loading) {
     isSubmitting = loading;
     submitBtn.disabled = loading;
     submitBtn.classList.toggle('contact-form__submit--loading', loading);
+    if (submitLabel) submitLabel.textContent = loading ? 'Sending…' : originalLabel;
   }
+
+  // Subtle click ripple on the submit button. Purely decorative;
+  // skipped entirely for prefers-reduced-motion.
+  function spawnRipple(event) {
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+
+    var rect = submitBtn.getBoundingClientRect();
+    var size = Math.max(rect.width, rect.height) * 1.4;
+    var ripple = document.createElement('span');
+    ripple.className = 'contact-form__ripple';
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = (event.clientX - rect.left - size / 2) + 'px';
+    ripple.style.top = (event.clientY - rect.top - size / 2) + 'px';
+    submitBtn.appendChild(ripple);
+    window.setTimeout(function () {
+      if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
+    }, 650);
+  }
+
+  submitBtn.addEventListener('click', function (event) {
+    // Only a decorative flourish — never blocks submission, and only
+    // fires on real pointer clicks (has clientX/Y), not keyboard
+    // Enter/Space activation.
+    if (event.clientX || event.clientY) spawnRipple(event);
+  });
 
   form.addEventListener('submit', function (event) {
     event.preventDefault();
@@ -84,6 +145,14 @@
 
     clearFieldErrors();
     banner.classList.remove('contact-form__banner--visible');
+
+    var clientErrors = runClientValidation();
+    if (clientErrors) {
+      showFieldErrors(clientErrors);
+      showBanner('error', 'Please fix the highlighted fields and try again.');
+      return;
+    }
+
     setLoading(true);
 
     var formData = new FormData(form);
