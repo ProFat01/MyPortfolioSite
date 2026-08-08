@@ -51,6 +51,15 @@ class Project(models.Model):
     link       = models.URLField(blank=True, null=True, help_text="Live URL or GitHub repo")
     created_at = models.DateTimeField(auto_now_add=True)  # set automatically on creation
 
+    # Optional downloadable presentation (e.g. PDF or PPTX slide deck).
+    # upload_to places files inside media/project_presentations/
+    presentation = models.FileField(
+        upload_to='project_presentations/',
+        blank=True,
+        null=True,
+        help_text="Optional — a slide deck / presentation file (PDF, PPTX, etc.) visitors can download.",
+    )
+
     def __str__(self):
         return self.title
 

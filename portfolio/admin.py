@@ -26,9 +26,13 @@ class ProfileAdmin(admin.ModelAdmin):
 # ------------------------------------------------------------------
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display  = ('title', 'created_at', 'link')   # table columns
+    list_display  = ('title', 'created_at', 'link', 'has_presentation')  # table columns
     search_fields = ('title', 'description')           # search box
     ordering      = ('-created_at',)                   # newest first
+
+    @admin.display(boolean=True, description="Presentation")
+    def has_presentation(self, obj):
+        return bool(obj.presentation)
 
 
 # ------------------------------------------------------------------

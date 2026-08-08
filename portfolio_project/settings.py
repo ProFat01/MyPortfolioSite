@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'portfolio.apps.PortfolioConfig',           # Our custom app
+    'analytics.apps.AnalyticsConfig',           # Visitor analytics (own app — see docs)
 ]
 
 SITE_ID = 1
@@ -68,6 +69,12 @@ JAZZMIN_SETTINGS = {
     "site_logo": "img/logo.png",
     "login_logo": "img/logo.png",
     "site_logo_classes": "img-circle",
+
+    # Adds a top-menu link to the Visitor Analytics dashboard.
+    # Additive only — doesn't touch any existing Jazzmin settings above.
+    "topmenu_links": [
+        {"name": "Analytics", "url": "analytics:dashboard"},
+    ],
 }
 
 
@@ -79,6 +86,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Visitor analytics — must come after Session/Auth middleware above
+    # (needs request.session and request.user). Never raises: any
+    # tracking failure is caught and logged, never breaks a response.
+    'analytics.middleware.VisitorTrackingMiddleware',
 ]
 
 ROOT_URLCONF = 'portfolio_project.urls'
@@ -160,7 +172,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #   DEFAULT_FROM_EMAIL=you@example.com
 #   CONTACT_RECIPIENT_EMAIL=you@example.com   (where enquiries land — can differ from the sender)
 # -------------------------------------------------
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = os.environ.get(
+    'DJANGO_EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend' if ON_PYTHONANYWHERE
+    else 'django.core.mail.backends.console.EmailBackend',
+)
 
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
@@ -179,3 +195,19 @@ CONTACT_OWNER_NAME = os.environ.get('CONTACT_OWNER_NAME', 'Saidu')
 # Set to False to disable the automatic visitor confirmation email
 # while still keeping the owner notification email active.
 CONTACT_SEND_CONFIRMATION = os.environ.get('CONTACT_SEND_CONFIRMATION', 'True') == 'True'
+
+# -------------------------------------------------
+# Contact CTA — "Book a Meeting" button
+#
+# The booking URL is public (it's meant to be clicked by visitors),
+# so it doesn't need to live in a secret — but it's still supplied
+# via the environment rather than hardcoded, so no placeholder/fake
+# URL ever ships in source control. Set this in your .env file (or
+# PythonAnywhere's environment variables) as:
+#
+#   GOOGLE_CALENDAR_BOOKING_URL=https://calendar.google.com/calendar/appointments/schedules/...
+#
+# If it's left unset, the template simply won't render the
+# "Book a Meeting" button — no broken/fake link is ever shown.
+# -------------------------------------------------
+GOOGLE_CALENDAR_BOOKING_URL = os.environ.get('GOOGLE_CALENDAR_BOOKING_URL', '')

@@ -1,0 +1,253 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Visitor Analytics | {{ site_title|default:"Django site admin" }}{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <!-- Chart.js: loaded only on this internal dashboard page — never on
+       the public site — so it has zero impact on portfolio load time. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+  <script src="{% static 'analytics/js/dashboard.js' %}" defer></script>
+  <style>
+    .analytics-card { margin-bottom: 1rem; }
+    .analytics-stat { font-size: 1.9rem; font-weight: 700; line-height: 1.1; }
+    .analytics-stat-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: .04em; color: #6c757d; }
+    .analytics-range-btn.active { background: #17a2b8; color: #fff; border-color: #17a2b8; }
+    .analytics-chart-wrap { position: relative; height: 260px; }
+    .analytics-empty { color: #6c757d; padding: 1.25rem; text-align: center; }
+    .analytics-table td, .analytics-table th { vertical-align: middle; }
+    @media (max-width: 576px) {
+      .analytics-chart-wrap { height: 220px; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div id="analytics-dashboard" data-data-url="{% url 'analytics:dashboard_data' %}">
+
+  <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-2">Visitor Analytics</h1>
+
+    <div class="d-flex flex-wrap align-items-center" style="gap: .5rem;">
+      <div class="btn-group" role="group" aria-label="Date range" id="analytics-range-group">
+        {% for value, label in range_choices %}
+          {% if value != 'custom' %}
+            <button type="button" class="btn btn-outline-secondary btn-sm analytics-range-btn{% if value == '7d' %} active{% endif %}" data-range="{{ value }}">{{ label }}</button>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <form class="d-flex align-items-center" id="analytics-custom-range" style="gap: .35rem;">
+        <input type="date" class="form-control form-control-sm" id="analytics-start-date" aria-label="Start date">
+        <span>&ndash;</span>
+        <input type="date" class="form-control form-control-sm" id="analytics-end-date" aria-label="End date">
+        <button type="submit" class="btn btn-outline-secondary btn-sm">Apply</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ SUMMARY CARDS ============ -->
+  <div class="row" id="analytics-summary-cards">
+    <div class="col-6 col-md-3 col-lg">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="summary.total_visits">&ndash;</div>
+        <div class="analytics-stat-label">Total Visits</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3 col-lg">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="summary.unique_visitors">&ndash;</div>
+        <div class="analytics-stat-label">Unique Visitors</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3 col-lg">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="summary.visits_today">&ndash;</div>
+        <div class="analytics-stat-label">Visits Today</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3 col-lg">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="summary.visits_this_week">&ndash;</div>
+        <div class="analytics-stat-label">Visits This Week</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3 col-lg">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="summary.visits_this_month">&ndash;</div>
+        <div class="analytics-stat-label">Visits This Month</div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ============ SELECTED-PERIOD CARDS ============ -->
+  <div class="row">
+    <div class="col-6 col-md-3">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="period.new_visitors">&ndash;</div>
+        <div class="analytics-stat-label">New Visitors (period)</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="period.returning_visitors">&ndash;</div>
+        <div class="analytics-stat-label">Returning Visitors (period)</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="contact.submissions_period">&ndash;</div>
+        <div class="analytics-stat-label">Contact Submissions (period)</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="contact.conversion_rate" data-suffix="%">&ndash;</div>
+        <div class="analytics-stat-label">Conversion Rate (period)</div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ============ CHARTS ============ -->
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <div class="card analytics-card">
+        <div class="card-header"><strong>Visits &amp; Visitors Over Time</strong></div>
+        <div class="card-body"><div class="analytics-chart-wrap"><canvas id="chart-visits-over-time"></canvas></div></div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="card analytics-card">
+        <div class="card-header"><strong>Device Breakdown</strong></div>
+        <div class="card-body"><div class="analytics-chart-wrap"><canvas id="chart-device-breakdown"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <div class="card analytics-card">
+        <div class="card-header"><strong>Most Visited Pages</strong></div>
+        <div class="card-body"><div class="analytics-chart-wrap"><canvas id="chart-top-pages"></canvas></div></div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="card analytics-card">
+        <div class="card-header"><strong>Project Views Over Time</strong></div>
+        <div class="card-body"><div class="analytics-chart-wrap"><canvas id="chart-project-views"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TABLES ============ -->
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <div class="card analytics-card">
+        <div class="card-header"><strong>Most Visited Pages</strong></div>
+        <div class="card-body p-0">
+          <table class="table table-sm analytics-table mb-0" id="table-top-pages">
+            <thead><tr><th>Page</th><th class="text-end">Visits</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="analytics-empty" data-empty-for="table-top-pages" style="display:none;">No page visits recorded yet.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="card analytics-card">
+        <div class="card-header"><strong>Top Referrers</strong></div>
+        <div class="card-body p-0">
+          <table class="table table-sm analytics-table mb-0" id="table-referrers">
+            <thead><tr><th>Referrer</th><th class="text-end">Visits</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="analytics-empty" data-empty-for="table-referrers" style="display:none;">No referrer data yet — most visits are likely direct.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <div class="card analytics-card">
+        <div class="card-header"><strong>Browser Breakdown</strong></div>
+        <div class="card-body p-0">
+          <table class="table table-sm analytics-table mb-0" id="table-browsers">
+            <thead><tr><th>Browser</th><th class="text-end">Visits</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="analytics-empty" data-empty-for="table-browsers" style="display:none;">No data yet.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="card analytics-card">
+        <div class="card-header"><strong>Operating System Breakdown</strong></div>
+        <div class="card-body p-0">
+          <table class="table table-sm analytics-table mb-0" id="table-os">
+            <thead><tr><th>OS</th><th class="text-end">Visits</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="analytics-empty" data-empty-for="table-os" style="display:none;">No data yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <div class="card analytics-card">
+        <div class="card-header"><strong>Most Viewed Projects</strong></div>
+        <div class="card-body p-0">
+          <table class="table table-sm analytics-table mb-0" id="table-projects">
+            <thead><tr><th>Project</th><th class="text-end">Clicks</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="analytics-empty" data-empty-for="table-projects" style="display:none;">No project clicks recorded yet.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="card analytics-card">
+        <div class="card-header"><strong>Presentation Downloads</strong></div>
+        <div class="card-body p-0">
+          <table class="table table-sm analytics-table mb-0" id="table-downloads">
+            <thead><tr><th>Project</th><th class="text-end">Downloads</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="analytics-empty" data-empty-for="table-downloads" style="display:none;">No presentation downloads yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ENGAGEMENT SUMMARY ============ -->
+  <div class="row">
+    <div class="col-6 col-md-3">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="engagement.book_meeting_clicks">&ndash;</div>
+        <div class="analytics-stat-label">Book a Meeting Clicks</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="engagement.send_email_clicks">&ndash;</div>
+        <div class="analytics-stat-label">Send Email Clicks</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="contact.submissions_today">&ndash;</div>
+        <div class="analytics-stat-label">Contact Submissions Today</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card analytics-card"><div class="card-body">
+        <div class="analytics-stat" data-field="contact.submissions_month">&ndash;</div>
+        <div class="analytics-stat-label">Contact Submissions This Month</div>
+      </div></div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -56,16 +56,37 @@
                   {{ project.created_at|date:"M Y" }}
                 </span>
 
-                <!-- Link button (only shown if a link exists) -->
-                {% if project.link %}
-                  <a
-                    href="{{ project.link }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="btn btn--small btn--primary"
-                  >
-                    View Project <span aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span>
-                  </a>
+                {# Action buttons: View Project + Download Presentation (each optional) #}
+                {% if project.link or project.presentation %}
+                  <div class="project-card__actions">
+                    {% if project.link %}
+                      <a
+                        href="{{ project.link }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn--small btn--primary"
+                        data-track-event="project_click"
+                        data-track-project="{{ project.id }}"
+                      >
+                        View Project <span aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span>
+                      </a>
+                    {% endif %}
+
+                    {% if project.presentation %}
+                      <a
+                        href="{{ project.presentation.url }}"
+                        class="btn btn--small btn--outline"
+                        download
+                        data-track-event="presentation_download"
+                        data-track-project="{{ project.id }}"
+                      >
+                        <span class="btn__icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M4 19h16"/></svg>
+                        </span>
+                        Download Presentation
+                      </a>
+                    {% endif %}
+                  </div>
                 {% endif %}
               </div>
             </div>
@@ -87,4 +108,8 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'analytics/js/track.js' %}" defer></script>
 {% endblock %}

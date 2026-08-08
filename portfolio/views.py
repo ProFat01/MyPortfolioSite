@@ -133,6 +133,7 @@ def contact(request):
         'profile': profile,
         'page': 'contact',
         'form': form,
+        'google_calendar_booking_url': getattr(settings, 'GOOGLE_CALENDAR_BOOKING_URL', ''),
         'meta_description': "Get in touch — I'm always open to new projects and opportunities.",
     }
     return render(request, 'portfolio/contact.html', context)

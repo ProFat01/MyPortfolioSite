@@ -21,6 +21,9 @@ urlpatterns = [
     # Django admin panel
     path('admin/', admin.site.urls),
 
+    # Visitor analytics: public click-tracking beacon + staff-only dashboard
+    path('analytics/', include('analytics.urls')),
+
     # SEO helpers
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('robots.txt', robots_txt, name='robots_txt'),
